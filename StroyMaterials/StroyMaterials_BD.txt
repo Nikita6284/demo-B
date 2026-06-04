@@ -1,0 +1,336 @@
+-- ============================================================
+-- БАЗА ДАННЫХ ДЛЯ ООО «СтройМатериалы»
+-- ФИНАЛЬНАЯ ИСПРАВЛЕННАЯ ВЕРСИЯ
+-- ============================================================
+
+USE master;
+GO
+
+-- Убиваем все соединения и удаляем БД
+IF EXISTS (SELECT name FROM sys.databases WHERE name = N'StroyMaterials')
+BEGIN
+    ALTER DATABASE StroyMaterials SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+    DROP DATABASE StroyMaterials;
+END
+GO
+
+-- Создаем чистую БД
+CREATE DATABASE StroyMaterials;
+GO
+
+USE StroyMaterials;
+GO
+
+-- ============================================================
+-- 2. ТАБЛИЦЫ
+-- ============================================================
+
+CREATE TABLE Roles (
+    RoleID INT IDENTITY(1,1) PRIMARY KEY,
+    RoleName NVARCHAR(50) NOT NULL UNIQUE
+);
+GO
+
+CREATE TABLE Users (
+    UserID INT IDENTITY(1,1) PRIMARY KEY,
+    RoleID INT NOT NULL,
+    FullName NVARCHAR(100) NOT NULL,
+    Login NVARCHAR(100) NOT NULL UNIQUE,
+    Password NVARCHAR(50) NOT NULL,
+    FOREIGN KEY (RoleID) REFERENCES Roles(RoleID)
+);
+GO
+
+CREATE TABLE PickupPoints (
+    PointID INT IDENTITY(1,1) PRIMARY KEY,
+    Address NVARCHAR(200) NOT NULL UNIQUE
+);
+GO
+
+CREATE TABLE Categories (
+    CategoryID INT IDENTITY(1,1) PRIMARY KEY,
+    CategoryName NVARCHAR(100) NOT NULL UNIQUE
+);
+GO
+
+CREATE TABLE Manufacturers (
+    ManufacturerID INT IDENTITY(1,1) PRIMARY KEY,
+    ManufacturerName NVARCHAR(100) NOT NULL UNIQUE
+);
+GO
+
+CREATE TABLE Suppliers (
+    SupplierID INT IDENTITY(1,1) PRIMARY KEY,
+    SupplierName NVARCHAR(100) NOT NULL UNIQUE
+);
+GO
+
+CREATE TABLE Products (
+    ProductID INT IDENTITY(1,1) PRIMARY KEY,
+    Article NVARCHAR(20) NOT NULL UNIQUE,
+    Name NVARCHAR(200) NOT NULL,
+    Unit NVARCHAR(20) NOT NULL,
+    Price DECIMAL(10,2) NOT NULL,
+    SupplierID INT,
+    ManufacturerID INT,
+    CategoryID INT,
+    Discount DECIMAL(5,2) DEFAULT 0,
+    StockQuantity INT NOT NULL,
+    Description NVARCHAR(500),
+    PhotoFileName NVARCHAR(100),
+    FOREIGN KEY (SupplierID) REFERENCES Suppliers(SupplierID),
+    FOREIGN KEY (ManufacturerID) REFERENCES Manufacturers(ManufacturerID),
+    FOREIGN KEY (CategoryID) REFERENCES Categories(CategoryID)
+);
+GO
+
+CREATE TABLE OrderStatus (
+    StatusID INT IDENTITY(1,1) PRIMARY KEY,
+    StatusName NVARCHAR(50) NOT NULL UNIQUE
+);
+GO
+
+CREATE TABLE Orders (
+    OrderID INT IDENTITY(1,1) PRIMARY KEY,
+    OrderNumber INT NOT NULL UNIQUE,
+    OrderDate DATETIME NOT NULL,
+    DeliveryDate DATETIME NULL,
+    PickupPointID INT NOT NULL,
+    UserID INT NOT NULL,
+    PickupCode NVARCHAR(20),
+    StatusID INT NOT NULL,
+    FOREIGN KEY (PickupPointID) REFERENCES PickupPoints(PointID),
+    FOREIGN KEY (UserID) REFERENCES Users(UserID),
+    FOREIGN KEY (StatusID) REFERENCES OrderStatus(StatusID)
+);
+GO
+
+CREATE TABLE OrderProducts (
+    OrderProductID INT IDENTITY(1,1) PRIMARY KEY,
+    OrderID INT NOT NULL,
+    ProductID INT NOT NULL,
+    Quantity INT NOT NULL,
+    PriceAtMoment DECIMAL(10,2) NOT NULL,
+    FOREIGN KEY (OrderID) REFERENCES Orders(OrderID),
+    FOREIGN KEY (ProductID) REFERENCES Products(ProductID)
+);
+GO
+
+-- ============================================================
+-- 3. ВСТАВКА ДАННЫХ
+-- ============================================================
+
+-- 3.1 Роли
+INSERT INTO Roles (RoleName) VALUES 
+('Администратор'),
+('Менеджер'),
+('Авторизованный клиент');
+GO
+
+-- 3.2 Пользователи
+INSERT INTO Users (RoleID, FullName, Login, Password) VALUES
+(1, 'Ворсин Петр Евгеньевич', '94d5ous@gmail.com', 'uzWC67'),
+(1, 'Старикова Елена Павловна', 'uth4iz@mail.com', '2L6KZG'),
+(1, 'Одинцов Серафим Артёмович', 'yzls62@outlook.com', 'JlFRCZ'),
+(2, 'Степанов Михаил Артёмович', '1diph5e@tutanota.com', '8ntwUp'),
+(2, 'Ворсин Петр Евгеньевич', 'tjde7c@yahoo.com', 'YOyhfR'),
+(2, 'Старикова Елена Павловна', 'wpmrc3do@tutanota.com', 'RSbvHv'),
+(3, 'Михайлюк Анна Вячеславовна', '5d4zbu@tutanota.com', 'rwVDh9'),
+(3, 'Ситдикова Елена Анатольевна', 'ptec8ym@yahoo.com', 'LdNyos'),
+(3, 'Никифорова Весения Николаевна', '1qz4kw@mail.com', 'gynQMT'),
+(3, 'Сазонов Руслан Германович', '4np6se@mail.com', 'AtnDjr');
+GO
+
+-- 3.3 Пункты выдачи
+SET IDENTITY_INSERT PickupPoints ON;
+INSERT INTO PickupPoints (PointID, Address) VALUES
+(1, '420151, г. Лесной, ул. Вишневая, 32'),
+(2, '125061, г. Лесной, ул. Подгорная, 8'),
+(3, '630370, г. Лесной, ул. Шоссейная, 24'),
+(4, '400562, г. Лесной, ул. Зеленая, 32'),
+(5, '614510, г. Лесной, ул. Маяковского, 47'),
+(6, '410542, г. Лесной, ул. Светлая, 46'),
+(7, '620839, г. Лесной, ул. Цветочная, 8'),
+(8, '443890, г. Лесной, ул. Коммунистическая, 1'),
+(9, '603379, г. Лесной, ул. Спортивная, 46'),
+(10, '603721, г. Лесной, ул. Гоголя, 41'),
+(11, '410172, г. Лесной, ул. Северная, 13'),
+(12, '614611, г. Лесной, ул. Молодежная, 50'),
+(13, '454311, г.Лесной, ул. Новая, 19'),
+(14, '660007, г.Лесной, ул. Октябрьская, 19'),
+(15, '603036, г. Лесной, ул. Садовая, 4'),
+(16, '394060, г.Лесной, ул. Фрунзе, 43'),
+(17, '410661, г. Лесной, ул. Школьная, 50'),
+(18, '625590, г. Лесной, ул. Коммунистическая, 20'),
+(19, '625683, г. Лесной, ул. 8 Марта'),
+(20, '450983, г.Лесной, ул. Комсомольская, 26'),
+(21, '394782, г. Лесной, ул. Чехова, 3'),
+(22, '603002, г. Лесной, ул. Дзержинского, 28'),
+(23, '450558, г. Лесной, ул. Набережная, 30'),
+(24, '344288, г. Лесной, ул. Чехова, 1'),
+(25, '614164, г.Лесной,  ул. Степная, 30'),
+(26, '394242, г. Лесной, ул. Коммунистическая, 43'),
+(27, '660540, г. Лесной, ул. Солнечная, 25'),
+(28, '125837, г. Лесной, ул. Шоссейная, 40'),
+(29, '125703, г. Лесной, ул. Партизанская, 49'),
+(30, '625283, г. Лесной, ул. Победы, 46'),
+(31, '614753, г. Лесной, ул. Полевая, 35'),
+(32, '426030, г. Лесной, ул. Маяковского, 44'),
+(33, '450375, г. Лесной ул. Клубная, 44'),
+(34, '625560, г. Лесной, ул. Некрасова, 12'),
+(35, '630201, г. Лесной, ул. Комсомольская, 17'),
+(36, '190949, г. Лесной, ул. Мичурина, 26');
+SET IDENTITY_INSERT PickupPoints OFF;
+GO
+
+-- 3.4 Категории
+INSERT INTO Categories (CategoryName) VALUES 
+('Общестроительные материалы'),
+('Стеновые и фасадные материалы'),
+('Сухие строительные смеси и гидроизоляция'),
+('Ручной инструмент'),
+('Защита лица, глаз, головы');
+GO
+
+-- 3.5 Производители
+INSERT INTO Manufacturers (ManufacturerName) VALUES 
+('М500'),
+('Изостронг'),
+('Knauf'),
+('MixMaster'),
+('ЛСР'),
+('ВОЛМА'),
+('Vinylon'),
+('Павловский завод'),
+('Weber'),
+('Hesler'),
+('Armero'),
+('Wenzo Roma'),
+('KILIMGRIN'),
+('Исток'),
+('RUIZ'),
+('Husqvarna'),
+('Delta');
+GO
+
+-- 3.6 Поставщики
+INSERT INTO Suppliers (SupplierName) VALUES 
+('М500'),
+('Изостронг'),
+('Knauf'),
+('MixMaster'),
+('ЛСР'),
+('ВОЛМА'),
+('Vinylon'),
+('Павловский завод'),
+('Weber'),
+('Hesler'),
+('Armero'),
+('Wenzo Roma'),
+('KILIMGRIN'),
+('Исток'),
+('RUIZ'),
+('Husqvarna'),
+('Delta');
+GO
+
+-- 3.7 Статусы заказов
+INSERT INTO OrderStatus (StatusName) VALUES 
+('Новый'),
+('Завершен'),
+('Отменен');
+GO
+
+-- 3.8 Товары — ВСЕ 30
+SET IDENTITY_INSERT Products ON;
+INSERT INTO Products (ProductID, Article, Name, Unit, Price, SupplierID, ManufacturerID, CategoryID, Discount, StockQuantity, Description, PhotoFileName) VALUES
+(1, 'PMEZMH', 'Цемент', 'шт.', 440, 1, 1, 1, 8, 34, 'Цемент Евроцемент М500 Д0 ЦЕМ I 42,5 50 кг', 'PMEZMH.jpg'),
+(2, 'BPV4MM', 'Пленка техническая', 'шт.', 8, 2, 2, 1, 8, 2, 'Пленка техническая полиэтиленовая Изостронг 60 мк 3 м рукав 1,5 м, пог.м', 'BPV4MM.jpg'),
+(3, 'JVL42J', 'Пленка техническая', 'шт.', 13, 2, 2, 1, 4, 34, 'Пленка техническая полиэтиленовая Изостронг 100 мк 3 м рукав 1,5 м, пог.м', 'JVL42J.jpg'),
+(4, 'F895RB', 'Песок строительный', 'шт.', 102, 3, 3, 1, 6, 7, 'Песок строительный 50 кг', 'F895RB.jpg'),
+(5, '3XBOTN', 'Керамзит фракция', 'шт.', 110, 4, 4, 1, 5, 21, 'Керамзит фракция 10-20 мм 0,05 куб.м', '3XBOTN.jpg'),
+(6, '3L7RCZ', 'Газобетон', 'шт.', 7400, 5, 5, 2, 2, 20, 'Газобетон ЛСР 100х250х625 мм D400', '3L7RCZ.jpg'),
+(7, 'S72AM3', 'Пазогребневая плита', 'шт.', 500, 6, 6, 2, 5, 35, 'Пазогребневая плита ВОЛМА Гидро 667х500х80 мм полнотелая', 'S72AM3.jpg'),
+(8, '2G3280', 'Угол наружный', 'шт.', 795, 7, 7, 2, 9, 20, 'Угол наружный Vinylon 3050 мм серо-голубой', '2G3280.jpg'),
+(9, 'MIO8YV', 'Кирпич', 'шт.', 30, 6, 6, 2, 9, 31, 'Кирпич рядовой Боровичи полнотелый М150 250х120х65 мм 1NF', 'MIO8YV.jpg'),
+(10, 'UER2QD', 'Скоба для пазогребневой плиты', 'шт.', 25, 3, 3, 2, 8, 27, 'Скоба для пазогребневой плиты Knauf С1 120х100 мм', 'UER2QD.jpg'),
+(11, 'ZR70B4', 'Кирпич', 'шт.', 16, 8, 8, 2, 3, 0, 'Кирпич рядовой силикатный Павловский завод полнотелый М200 250х120х65 мм 1NF', NULL),
+(12, 'LPDDM4', 'Штукатурка гипсовая', 'шт.', 500, 3, 3, 3, 6, 38, 'Штукатурка гипсовая Knauf Ротбанд 30 кг', NULL),
+(13, 'LQ48MW', 'Штукатурка гипсовая', 'шт.', 462, 9, 9, 3, 6, 33, 'Штукатурка гипсовая Knauf МП-75 машинная 30 кг', NULL),
+(14, 'O43COU', 'Шпаклевка', 'шт.', 750, 6, 6, 3, 1, 16, 'Шпаклевка полимерная Weber.vetonit LR + для сухих помещений белая 20 кг', NULL),
+(15, 'M26EXW', 'Клей для плитки, керамогранита и камня', 'шт.', 340, 3, 3, 3, 8, 0, 'Клей для плитки, керамогранита и камня Крепс Усиленный серый (класс С1) 25 кг', NULL),
+(16, 'K0YACK', 'Смесь цементно-песчаная', 'шт.', 160, 4, 4, 3, 8, 19, 'Смесь цементно-песчаная (ЦПС) 300 по ТУ MixMaster Универсал 25 кг', NULL),
+(17, 'ASPXSG', 'Ровнитель', 'шт.', 711, 9, 9, 3, 10, 20, 'Ровнитель (наливной пол) финишный Weber.vetonit 4100 самовыравнивающийся высокопрочный 20 кг', NULL),
+(18, 'ZKQ5FF', 'Лезвие для ножа', 'шт.', 65, 10, 10, 4, 6, 6, 'Лезвие для ножа Hesler 18 мм прямое (10 шт.)', NULL),
+(19, '4WZEOT', 'Лезвие для ножа', 'шт.', 110, 11, 11, 4, 6, 17, 'Лезвие для ножа Armero 18 мм прямое (10 шт.)', NULL),
+(20, '4JR1HN', 'Шпатель', 'шт.', 26, 10, 10, 4, 6, 7, 'Шпатель малярный 100 мм с пластиковой ручкой', NULL),
+(21, 'Z3XFSP', 'Нож строительный', 'шт.', 63, 10, 10, 4, 8, 5, 'Нож строительный Hesler 18 мм с ломающимся лезвием пластиковый корпус', NULL),
+(22, 'I6MH89', 'Валик', 'шт.', 326, 12, 12, 4, 12, 3, 'Валик Wenzo Roma полиакрил 250 мм ворс 18 мм для красок грунтов и антисептиков на водной основе с рукояткой', NULL),
+(23, '83M5ME', 'Кисть', 'шт.', 122, 11, 11, 4, 9, 26, 'Кисть плоская смешанная щетина 100х12 мм для красок и антисептиков на водной основе', NULL),
+(24, '61PGH3', 'Очки защитные', 'шт.', 184, 13, 13, 5, 6, 25, 'Очки защитные Delta Plus KILIMANDJARO (KILIMGRIN) открытые с прозрачными линзами', NULL),
+(25, 'GN6ICZ', 'Каска защитная', 'шт.', 154, 14, 14, 5, 15, 8, 'Каска защитная Исток (КАС001О) оранжевая', NULL),
+(26, 'Z3LO0U', 'Очки защитные', 'шт.', 228, 15, 15, 5, 9, 11, 'Очки защитные Delta Plus RUIZ (RUIZ1VI) закрытые с прозрачными линзами', NULL),
+(27, 'QHNOKR', 'Маска защитная', 'шт.', 251, 14, 14, 5, 2, 22, 'Маска защитная Исток (ЩИТ001) ударопрочная и термостойкая', NULL),
+(28, 'EQ6RKO', 'Подшлемник', 'шт.', 36, 16, 16, 5, 17, 22, 'Подшлемник для каски одноразовый', NULL),
+(29, '81F1WG', 'Каска защитная', 'шт.', 1500, 17, 17, 5, 2, 13, 'Каска защитная Delta Plus BASEBALL DIAMOND V UP (DIAM5UPBCFLBS) белая', NULL),
+(30, '0YGHZ7', 'Очки защитные', 'шт.', 700, 16, 16, 5, 9, 36, 'Очки защитные Husqvarna Clear (5449638-01) открытые с прозрачными линзами', NULL);
+SET IDENTITY_INSERT Products OFF;
+GO
+
+-- 3.9 Заказы
+INSERT INTO Orders (OrderNumber, OrderDate, DeliveryDate, PickupPointID, UserID, PickupCode, StatusID) VALUES
+(1, '20250227', '20250420', 1, 7, '901', 2),
+(2, '20240928', '20250421', 11, 8, '902', 2),
+(3, '20250321', '20250422', 2, 9, '903', 2),
+(4, '20250220', '20250423', 11, 10, '904', 2),
+(5, '20250317', '20250424', 2, 7, '905', 2),
+(6, '20250301', '20250425', 15, 8, '906', 2),
+(7, '20250228', '20250426', 3, 9, '907', 2),
+(8, '20250331', '20250427', 19, 10, '908', 1),
+(9, '20250402', '20250428', 5, 9, '909', 1),
+(10, '20250403', '20250429', 19, 10, '910', 1);
+GO
+
+-- 3.10 Товары в заказах — ИСПРАВЛЕНО: O43COU8 → O43COU
+INSERT INTO OrderProducts (OrderID, ProductID, Quantity, PriceAtMoment)
+SELECT o.OrderID, p.ProductID, tmp.Quantity, tmp.PriceAtMoment
+FROM (VALUES
+    (1, 'PMEZMH', 2, 440),
+    (1, 'BPV4MM', 2, 8),
+    (2, 'JVL42J', 1, 13),
+    (2, 'F895RB', 1, 102),
+    (3, '3XBOTN', 10, 110),
+    (3, '3L7RCZ', 10, 7400),
+    (4, 'S72AM3', 5, 500),
+    (4, '2G3280', 4, 795),
+    (5, 'MIO8YV', 2, 30),
+    (5, 'UER2QD', 2, 25),
+    (6, 'ZR70B4', 1, 16),
+    (6, 'LPDDM4', 1, 500),
+    (7, 'LQ48MW', 10, 462),
+    (7, 'O43COU', 10, 750),   -- БЫЛО O43COU8 → ИСПРАВЛЕНО
+    (8, 'M26EXW', 5, 340),
+    (8, 'K0YACK', 4, 160),
+    (9, 'ASPXSG', 5, 711),
+    (9, 'ZKQ5FF', 1, 65),
+    (10, '4WZEOT', 5, 110),
+    (10, '4JR1HN', 5, 26)
+) AS tmp(OrderNumber, Article, Quantity, PriceAtMoment)
+JOIN Orders o ON o.OrderNumber = tmp.OrderNumber
+JOIN Products p ON p.Article = tmp.Article;
+GO
+
+-- ============================================================
+-- 4. ПРОВЕРКА
+-- ============================================================
+SELECT 'Роли' AS Таблица, COUNT(*) AS Записей FROM Roles
+UNION ALL SELECT 'Пользователи', COUNT(*) FROM Users
+UNION ALL SELECT 'Пункты выдачи', COUNT(*) FROM PickupPoints
+UNION ALL SELECT 'Категории', COUNT(*) FROM Categories
+UNION ALL SELECT 'Производители', COUNT(*) FROM Manufacturers
+UNION ALL SELECT 'Поставщики', COUNT(*) FROM Suppliers
+UNION ALL SELECT 'Товары', COUNT(*) FROM Products
+UNION ALL SELECT 'Статусы заказов', COUNT(*) FROM OrderStatus
+UNION ALL SELECT 'Заказы', COUNT(*) FROM Orders
+UNION ALL SELECT 'Товары в заказах', COUNT(*) FROM OrderProducts;
+GO

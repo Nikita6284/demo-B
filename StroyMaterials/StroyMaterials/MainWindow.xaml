@@ -1,0 +1,67 @@
+﻿<Window x:Class="StroyMaterials.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Авторизация - СтройМатериалы"
+        Height="500" Width="800"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        FontFamily="Calibri">
+
+    <Grid Background="#FFFFFF">
+      
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="1.5*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- ЛЕВАЯ ПАНЕЛЬ - ЛОГОТИП И НАЗВАНИЕ КОМПАНИИ -->
+        <Border Grid.Column="0" Background="#DAA520">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <Image x:Name="imgLogo" Width="80" Height="80" Margin="0,0,0,10" Stretch="Uniform"/>
+                <TextBlock Text="ООО «СтройМатериалы»" FontSize="20" FontWeight="Bold"
+                           TextAlignment="Center" Margin="0,0,0,5" Foreground="White"/>
+                <TextBlock Text="Строительные материалы" FontSize="14"
+                           TextAlignment="Center" FontStyle="Italic" Foreground="White"/>
+            </StackPanel>
+        </Border>
+
+        <!-- ПРАВАЯ ПАНЕЛЬ - ФОРМА ВХОДА -->
+        <Grid Grid.Column="1" Margin="40">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0" Text="Вход в систему"
+                       FontSize="24" FontWeight="Bold"
+                       Margin="0,0,0,30" HorizontalAlignment="Center"/>
+
+            <!-- ПОЛЕ ВВОДА ЛОГИНА -->
+            <StackPanel Grid.Row="1" Margin="0,0,0,15">
+                <TextBlock Text="Логин:" FontSize="14" FontWeight="Bold" Margin="0,0,0,5"/>
+                <TextBox x:Name="txtLogin" Height="35" FontSize="14" Padding="8,5"/>
+            </StackPanel>
+
+            <!-- ПОЛЕ ВВОДА ПАРОЛЯ -->
+            <StackPanel Grid.Row="2" Margin="0,0,0,25">
+                <TextBlock Text="Пароль:" FontSize="14" FontWeight="Bold" Margin="0,0,0,5"/>
+                <PasswordBox x:Name="txtPassword" Height="35" FontSize="14" Padding="8,5"/>
+            </StackPanel>
+
+            <!-- КНОПКА ВХОДА -->
+            <Button x:Name="btnLogin" Content="ВОЙТИ" Grid.Row="3"
+                    Height="40" FontSize="14" FontWeight="Bold"
+                    Background="#B8860B" Foreground="White"
+                    Click="btnLogin_Click" Margin="0,0,0,10"/>
+
+            <!-- КНОПКА ГОСТЕВОГО ВХОДА -->
+            <Button x:Name="btnGuest" Content="ПРОДОЛЖИТЬ КАК ГОСТЬ" Grid.Row="4"
+                    Height="35" FontSize="12" Background="#B8860B" Foreground="White"
+                    Click="btnGuest_Click"/>
+        </Grid>
+    </Grid>
+</Window>

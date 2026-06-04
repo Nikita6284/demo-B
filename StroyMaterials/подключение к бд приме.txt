@@ -1,0 +1,8 @@
+// БАЗОВЫЙ ШАБЛОН
+private string connectionString = @"Server=IP_АДРЕС;Database=ИМЯ_БД;User Id=ЛОГИН;Password=ПАРОЛЬ;";
+
+// ПРИМЕР С ВАШИМИ ДАННЫМИ
+private string connectionString = @"Server=192.168.0.180;Database=StroyMaterials;User Id=user05;Password=1A41AD4D;";
+
+
+
